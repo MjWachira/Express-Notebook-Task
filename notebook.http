@@ -1,0 +1,28 @@
+
+POST http://localhost:4300/notebook
+Content-Type: application/json
+
+{
+    "note_title":"learned node",
+    "contentet":"created endpoints using express",
+    "date_created":"2023-07-28"
+}
+
+###
+GET http://localhost:4300/notebook
+
+###
+GET http://localhost:4300/notebook/db1c6b84-628e-4d35-9fd6-7bd36c08f5b2
+
+###
+PUT http://localhost:4300/notebook/db1c6b84-628e-4d35-9fd6-7bd36c08f5b2
+Content-Type: application/json
+
+{
+    "note_title":"Dependencies",
+    "contentet":"Installed and configured dependences using express",
+    "date_created":"2023-07-28"
+}
+
+###
+DELETE http://localhost:4300/notebook/cb3fe406-b0b2-4013-9f1d-5a380afe9a50
