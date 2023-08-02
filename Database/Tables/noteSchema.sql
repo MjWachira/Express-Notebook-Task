@@ -1,3 +1,4 @@
+USE Notebook;
 BEGIN
     TRY 
         CREATE TABLE notesTable(
@@ -11,3 +12,7 @@ BEGIN
     CATCH 
         THROW 50001,'Table already exists!',1;
     END CATCH
+
+SELECT * FROM notesTable;
+
+-- DROP TABLE notesTable;

@@ -1,5 +1,8 @@
-const{v4} = require('uuid')
-const notes = [];
+const{v4} = require('uuid');
+const mssql = require('mssql');
+const { createNotesTable } = require('../Database/Tables/createNotesTable');
+const { sqlConfig } = require('../Config/config');
+// const notes = [];
 // console.log(notes)
 
 
@@ -19,19 +22,29 @@ const createNote = async (req, res)=>{
         const id =v4()
         //console.log(id)
         const { note_title,contentet, date_created} =req.body
-        const newNote = {id, note_title,contentet, date_created }
-        notes.push(newNote)
-        // console.log(newNote)
-        res.json({
-            message:"Note created successfully",
-            project: newNote
-        })
+        const pool = await mssql.connect(sqlConfig)
+        const result =(await pool.request()
+        .input('id',id)
+        .input('note_title',mssql.VarChar,note_title)
+        .input('contentet',mssql.VarChar,contentet)
+        .input('date_created',mssql.Date,date_created)
+        .execute('createNotePROC'))
+        if(result.rowsAffected == 1){
+            return res.json({
+                message: "Project created Successfully",
+            })  
+            }else{
+                return res.json({message: "Creation failed"})
+            } 
     } catch(error){
         return res.json({error})}
 }
+
 const getNotes = async(req, res)=>{
     try{
-        res.json({notes:notes})
+        const pool = await (mssql.connect(sqlConfig))
+        const allNotes = (await pool.request().execute(`getAllNotesProc`)).recordset
+        res.json({Notes: allNotes})
 
     }catch(error){
         return res.json({error})}
@@ -39,45 +52,57 @@ const getNotes = async(req, res)=>{
 const getNote = async(req, res)=>{
     try{
         const id = req.params.id
-        const note= notes.filter(el =>el.id == id)
+        const pool = await mssql.connect(sqlConfig)
+        const note = (await pool.request().input('id', id).execute('getOneNoteProc')).recordset
         res.json({
-            note
+            note:note
         })
     }catch(error){
         return res.json({error})}
 }
 const updateNote = async(req,res)=>{
     try{
-        const id=req.params.id
-        const {note_title,contentet, date_created}=req.body
-        const note_index= notes.findIndex(note=>note.id == id)
+        const {id} = req.params
+        const { note_title,contentet, date_created} =req.body
+        const pool = await mssql.connect(sqlConfig)
+        const result = (await pool.request()
+        .input('id',id)
+        .input('note_title',mssql.VarChar,note_title)
+        .input('contentet',mssql.VarChar,contentet)
+        .input('date_created',mssql.Date,date_created)
+        .execute('updateNoteProc'));
+        console.log(result);
 
-        if(note_index<0){
-            res.json("Note not found")
+        if(result.rowsAffected == 1){
+            res.json({
+                message: 'Note updated successfully'
+            })
         }else{
-            notes[note_index]=new Note(id,note_title,contentet, date_created)
+            res.json({
+                message: 'Note not found'
+            })
         }
-        res.json({
-            message:'Notebook updted successfully',
-            note:notes[note_index]
-        })
-
     }catch(error){
         return res.json({error})
     }
 }
 const deleteNote =async(req, res)=>{
     try{
+        
         const id = req.params.id
-        let note_index = notes.findIndex(note =>note.id==id)
-        if (note_index<0){
-            res.json({messagea:'Note not found'})
+        const pool = await mssql.connect(sqlConfig)
+        const result = await pool.request()
+        .input('id', id)
+        .execute('deleteNoteProc')
+        if(result.rowsAffected == 1){
+            res.json({
+                    message: 'note deleted successfully'
+            })
         }else{
-            notes.splice(note_index,1)
-        }
-        res.json({
-            message:'Note deleted succesfully'
+            res.json({
+                message: 'note not found'
         })
+        }
     }catch(error){
         return res.json({Error:error})
     }
