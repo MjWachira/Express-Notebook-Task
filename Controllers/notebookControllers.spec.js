@@ -31,6 +31,7 @@ describe("Nobotebook Controller",()=>{
 
             })
             await createNote(req,res)
+            expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledWith({
                     message: "note created successfully"
                 })
@@ -56,7 +57,7 @@ describe("Nobotebook Controller",()=>{
               })
             })
             await createNote(req,res)
-           // expect(jest.fn(res.status)).toHaveBeenCalledWith(201)
+            expect(res.status).toHaveBeenCalledWith(400)
             expect(res.json).toHaveBeenCalledWith({
                     message: "creation failed"
              })
