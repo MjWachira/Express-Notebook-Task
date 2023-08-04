@@ -29,21 +29,20 @@ const createNote = async (req, res)=>{
         .input('contentet',mssql.VarChar,contentet)
         .input('date_created',mssql.Date,date_created)
         .execute('createNotePROC'))
-        if(result.rowsAffected == 1){
+        if(result.rowsAffected [0]== 1){
             return res.json({
-                message: "Project created Successfully",
+                message: "note created successfully",
             })  
             }else{
-                return res.json({message: "Creation failed"})
+                return res.json({message: "creation failed"})
             } 
     } catch(error){
         return res.json({error})}
 }
-
 const getNotes = async(req, res)=>{
     try{
         const pool = await (mssql.connect(sqlConfig))
-        const allNotes = (await pool.request().execute(`getAllNotesProc`)).recordset
+        const allNotes = (await pool.request().execute('getAllNotesProc')).recordset
         res.json({Notes: allNotes})
 
     }catch(error){
@@ -75,11 +74,11 @@ const updateNote = async(req,res)=>{
 
         if(result.rowsAffected == 1){
             res.json({
-                message: 'Note updated successfully'
+                message: 'note updated successfully'
             })
         }else{
             res.json({
-                message: 'Note not found'
+                message: 'note not found'
             })
         }
     }catch(error){
